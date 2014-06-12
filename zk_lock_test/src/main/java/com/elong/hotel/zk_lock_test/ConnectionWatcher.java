@@ -11,14 +11,11 @@ import org.apache.zookeeper.Watcher.Event.KeeperState;
 
 // vv ConnectionWatcher
 public class ConnectionWatcher implements Watcher {
-
-	private static final int SESSION_TIMEOUT = 15000;
-
 	protected ZooKeeper zk;
 	private CountDownLatch connectedSignal = new CountDownLatch(1);
 
-	public void connect(String hosts) throws IOException, InterruptedException {
-		zk = new ZooKeeper(hosts, SESSION_TIMEOUT, this);
+	public void connect() throws IOException, InterruptedException {
+		zk = ZKClientFactory.getInstnace().CreateByDefault(this);
 		connectedSignal.await();
 	}
 
@@ -30,6 +27,10 @@ public class ConnectionWatcher implements Watcher {
 
 	public void close() throws InterruptedException {
 		zk.close();
+	}
+	
+	public ZooKeeper getZK(){
+		return zk;
 	}
 }
 // ^^ ConnectionWatcher

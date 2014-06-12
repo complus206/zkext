@@ -2,7 +2,6 @@ package com.elong.hotel.zk_lock_test;
 
 //cc JoinGroup A program that joins a group
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -12,8 +11,6 @@ import java.util.Map;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.WatchedEvent;
-import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.data.Stat;
 
@@ -35,12 +32,12 @@ import org.apache.zookeeper.data.Stat;
  */
 public class DistributedLock extends ConnectionWatcher {
 
-	private static Integer waitLockTime = 3000;
 	private IWorker worker;
 
 	public String join(String groupPath, IWorker wk) throws Exception {
-		if(wk==null){
-			throw new Exception("DistributedLock.Join can not support parameter wk to be null!");
+		if (wk == null) {
+			throw new Exception(
+					"DistributedLock.Join can not support parameter wk to be null!");
 		}
 		this.worker = wk;
 		String path = groupPath + "/lock-" + zk.getSessionId() + "-";
@@ -48,7 +45,7 @@ public class DistributedLock extends ConnectionWatcher {
 		// 建立一个顺序临时节点
 		String createdPath = zk.create(path, null/* data */,
 				Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
-		Util.Output("Created " + createdPath);
+		Logger.info("Created " + createdPath);
 
 		return createdPath;
 	}
@@ -81,12 +78,12 @@ public class DistributedLock extends ConnectionWatcher {
 		}
 
 		if (minId) {
-			Util.Output(new Date() + "Got lock！ myId:" + myId);
+			Logger.info(new Date() + "Got lock！ myId:" + myId);
 			this.worker.run();
 			this.close();
 			return true;
 		} else {
-			Util.Output(new Date() + "Waiting lock, myId:" + myId);
+			Logger.info(new Date() + "Waiting lock, myId:" + myId);
 			return false;
 		}
 	}
@@ -128,11 +125,12 @@ public class DistributedLock extends ConnectionWatcher {
 		long headId = idList.get(i - 1);
 
 		String headPath = groupPath + "/lock-" + sessionMap.get(headId);
-		Util.Output("add watcher：" + headPath);
+		Logger.info("add watcher：" + headPath);
 
-		Stat stat = zk.exists(headPath, new WatcherExtend(this, groupPath, myName));
+		Stat stat = zk.exists(headPath, new DistributedLockWatcher(this, groupPath,
+				myName));
 
-		Util.Output(stat.toString());
+		Logger.info(stat.toString());
 	}
 }
 // ^^ JoinGroup
