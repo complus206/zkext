@@ -15,7 +15,7 @@ public class ConnectionWatcher implements Watcher {
 	private CountDownLatch connectedSignal = new CountDownLatch(1);
 
 	public void connect() throws IOException, InterruptedException {
-		zk = ZKClientFactory.getInstnace().CreateByDefault(this);
+		zk = ZKClientFactory.getInstnace().createByDefault(this);
 		connectedSignal.await();
 	}
 

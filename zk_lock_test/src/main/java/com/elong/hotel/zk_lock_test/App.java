@@ -1,7 +1,5 @@
 package com.elong.hotel.zk_lock_test;
 
-import java.util.ArrayList;
-
 import org.apache.zookeeper.KeeperException;
 
 /**

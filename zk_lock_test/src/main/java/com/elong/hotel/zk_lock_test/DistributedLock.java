@@ -32,7 +32,7 @@ import org.apache.zookeeper.data.Stat;
  */
 public class DistributedLock extends ConnectionWatcher {
 
-	private IWorker worker;
+	private IWorker worker = null;
 
 	public String join(String groupPath, IWorker wk) throws Exception {
 		if (wk == null) {

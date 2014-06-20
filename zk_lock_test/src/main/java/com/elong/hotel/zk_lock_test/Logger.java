@@ -15,13 +15,16 @@ public class Logger {
 	}
 
 	public static void error(Exception ex) {
-		String content = ex.toString() + "\r\n";
 		StackTraceElement[] els = ex.getStackTrace();
+		StringBuilder builder = new StringBuilder();
+		builder.append(ex.toString() + "\r\n");
+		
 		for (int i = 0; i < els.length; i++) {
-			content += els[i].toString() + "\r\n";
+			builder.append(els[i].toString()); 
+			builder.append("\r\n");
 		}
 		
-		error(content);
+		error(builder.toString());
 	}
 
 	private static String buildContent(String s) {

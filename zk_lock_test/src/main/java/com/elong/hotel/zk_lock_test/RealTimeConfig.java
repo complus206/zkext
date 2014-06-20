@@ -1,7 +1,5 @@
 package com.elong.hotel.zk_lock_test;
-
-import java.io.IOException;
-import java.util.Arrays;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 
 import org.apache.zookeeper.KeeperException;
@@ -11,41 +9,33 @@ import org.apache.zookeeper.data.Stat;
 
 public class RealTimeConfig extends ConnectionWatcher {
 
-	private static RealTimeConfig instance = null;
+	private static RealTimeConfig instance = new RealTimeConfig();;
 	private HashMap<String, String> map = new HashMap<String, String>();;
 
-	private RealTimeConfig() throws IOException, InterruptedException {
-		this.connect();
-	}
-
-	public static RealTimeConfig getInstnace() {
-		if (instance == null) {
-			synchronized (RealTimeConfig.class) {
-				if (instance == null) {
-					try {
-						instance = new RealTimeConfig();
-					} catch (Exception ex) {
-						Logger.error(ex);
-					}
-				}
-				return instance;
-			}
-		} else {
-			return instance;
+	private RealTimeConfig(){
+		try {
+			this.connect();
+		} catch (Exception ex){
+			Logger.error(ex);
 		}
 	}
 
+	public static RealTimeConfig getInstnace() {
+		return instance;
+	}
+
 	public void process(WatchedEvent event) {
-		
+
 		super.process(event);
-		
+
 		try {
 			if (event.getType() == EventType.NodeDataChanged) {
 				// 响应内容变更
 				String path = event.getPath();
 				if (map.containsKey(path) == true) {
 					byte[] buffer = zk.getData(path, this, null);
-					String content = new String(buffer);
+					String content = new String(buffer,
+							Charset.forName("UTF-8"));
 					setData(path, content);
 				}
 			} else if (event.getType() == EventType.NodeDeleted) {
@@ -60,7 +50,8 @@ public class RealTimeConfig extends ConnectionWatcher {
 				String path = event.getPath();
 				if (map.containsKey(path) == true) {
 					byte[] buffer = zk.getData(path, this, null);
-					String content = new String(buffer);
+					String content = new String(buffer,
+							Charset.forName("UTF-8"));
 					setData(path, content);
 				}
 			}
@@ -79,7 +70,7 @@ public class RealTimeConfig extends ConnectionWatcher {
 			Stat stat = zk.exists(path, this);
 			if (stat != null) {
 				byte[] buffer = zk.getData(path, this, stat);
-				String content = new String(buffer);
+				String content = new String(buffer, Charset.forName("UTF-8"));
 				setData(path, content);
 			} else {
 				setData(path, "");

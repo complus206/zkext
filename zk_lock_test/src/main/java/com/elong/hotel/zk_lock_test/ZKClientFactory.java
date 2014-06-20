@@ -9,42 +9,35 @@ import org.apache.zookeeper.ZooKeeper;
 
 public class ZKClientFactory {
 
-	private static int sessionTimeout = 5000;
-	private static String connectionString = "";
-	private static ZKClientFactory instance = null;
+	private int sessionTimeout = 5000;
+	private String connectionString = "";
+	private static ZKClientFactory instance = new ZKClientFactory();
 
-	private ZKClientFactory() throws IOException {
+	private ZKClientFactory() {
 		Properties prop = new Properties();
 		InputStream in = Object.class.getResourceAsStream("/zk.properties");
 		try {
 			prop.load(in);
-			sessionTimeout = new Integer(prop.getProperty("Session_Timeout")
-					.trim());
+			sessionTimeout = Integer.parseInt(prop.getProperty("Session_Timeout").trim());
 			connectionString = prop.getProperty("Connection").trim();
 		} catch (IOException ex) {
 			Logger.error(ex);
 		}
-		in.close();
-	}
-
-	public static ZKClientFactory getInstnace() {
-		if (instance == null) {
-			synchronized (ZKClientFactory.class) {
-				if (instance == null) {
-					try {
-						instance = new ZKClientFactory();
-					} catch (Exception ex) {
-						Logger.error(ex);
-					}
-				}
-				return instance;
+		finally{
+			try {
+				in.close();
+			} catch (IOException ex) {
+				// TODO Auto-generated catch block
+				Logger.error(ex);
 			}
-		} else {
-			return instance;
 		}
 	}
 
-	public ZooKeeper CreateByDefault(Watcher w) throws IOException {
+	public static ZKClientFactory getInstnace() {
+		return instance;
+	}
+
+	public ZooKeeper createByDefault(Watcher w) throws IOException {
 		ZooKeeper zk = new ZooKeeper(connectionString, sessionTimeout, w);
 		return zk;
 	}
