@@ -1,4 +1,5 @@
 package com.elong.hotel.zk_lock_test;
+
 import java.nio.charset.Charset;
 import java.util.HashMap;
 
@@ -12,15 +13,14 @@ public class RealTimeConfig extends ConnectionWatcher {
 	private static RealTimeConfig instance = new RealTimeConfig();;
 	private HashMap<String, String> map = new HashMap<String, String>();;
 
-	private RealTimeConfig(){
-		try {
-			this.connect();
-		} catch (Exception ex){
-			Logger.error(ex);
-		}
+	private RealTimeConfig() {
+
 	}
 
 	public static RealTimeConfig getInstnace() {
+		if (instance == null) {
+			createInstance();
+		}
 		return instance;
 	}
 
@@ -77,6 +77,19 @@ public class RealTimeConfig extends ConnectionWatcher {
 			}
 
 			return map.get(path);
+		}
+	}
+
+	private static synchronized void createInstance() {
+		if (instance == null) {
+			try {
+				RealTimeConfig config = new RealTimeConfig();
+				config.connect();
+				instance = config;
+			} catch (Exception ex) {
+				Logger.error(ex);
+				instance = null;
+			}
 		}
 	}
 
